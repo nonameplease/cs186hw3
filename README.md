@@ -2,15 +2,15 @@
 **Due 11:59 PM Wednesday, October 17**
 
 ## Overview
-In this assignment, you will implement iterators  and join algorithms over tables in Java. In this
+In this assignment, you will implement iterators and join algorithms over tables in Java. In this
 document, we explain
 
-- how to fetch the release code from GitHub,
+- how to fetch the release code from GitHub (everything should be similar to the steps you have done for HW2),
 - how to program in Java on the virtual machine, and
 - what code you have to implement.
 
 ## Step 0: Fetching the Assignment
-To avoid redownloading our maven dependencies every time we start our docker conatiner, we will start our docker container a little differently than in HW1. The first time you work on this homework run the following command:
+Similar to HW2, to avoid redownloading our maven dependencies every time we start our docker conatiner, we will start our docker container a little differently than in HW1. The first time you work on this homework run the following command:
 ```
 docker run --name cs186hw3 -v <pathname-to-directory-on-your-machine>:/cs186 -it cs186/environment bash
 ```
@@ -22,9 +22,6 @@ The only thing that should happen is the terminal should print cs186hw3. After r
 ```
 docker exec -it cs186hw3 bash
 ```
-
-After completing these steps, your terminal should look something like this:
-![Commands](dockerstart.PNG)
 
 While inside your container, navigate to the shared directory you created in the hw1 setup: 
 ```
