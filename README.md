@@ -65,7 +65,7 @@ run
 sudo mvn clean compile 
 sudo mvn clean test
 ```
-There should be around 33 errors and 198 tests run. 
+There should be around 21 errors and 166 tests run. 
 
 You are free to use any text editor or IDE to complete the project, but **we
 will build and test your code on the VM with maven**. We recommend completing
