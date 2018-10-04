@@ -67,23 +67,14 @@ sudo mvn clean test
 ```
 There should be around 21 errors and 166 tests run. 
 
-You are free to use any text editor or IDE to complete the project, but **we
-will build and test your code on the VM with maven**. We recommend completing
-the project with either Eclipse or IntelliJ, both of which come installed on
-the VM:
+Similar to HW2, you are free to use any text editor or IDE to complete the project, but **we
+will build and test your code in the docker container with maven**.
 
-```bash
-eclipse # Launch eclipse.
-idea.sh # Launch IntelliJ.
-```
+We recommend setting up a more local development environment by installing Java 8 (the version our Docker container runs) and using an IDE such as Eclipse or IntelliJ. Note that if you have another version of Java installed on your computer it is probably fine to run that as long as you don't use any Java 9/10 features, but be sure to run the maven tests in the docker container frequently to ensure your code will work on our setup. Here is a link to Java 8 downloads: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html. If you're having trouble installing Java, CS61B gives some pretty detailed instructions in Section A 'Configure Your Computer' here: https://sp18.datastructur.es/materials/lab/lab1setup/lab1setup (make sure to use Java 8 rather than Java 9). When setting up your IDE, make sure to import the project as a Maven project.
 
-There are instructions online for how to import a maven project into
-[Eclipse][eclipse_maven] and [IntelliJ][intellij_maven]. There are also
-instructions online for how to debug Java in [Eclipse][eclipse_debugging] and
-[IntelliJ][intellij_debugging]. When IntelliJ prompts you for an SDK, select
-the one in `/home/vagrant/jdk1.8.0_131`. It bears repeating that even though
-you are free to complete the project in Eclipse or IntelliJ, **we will build
-and test your code on the VM with maven**.
+If you can import the code as a maven project in your IDE and run your unit tests successfully, you do not need to install maven on your local computer. Most IDEs should provide this functionality by default, in Eclipse for example, you can do this: File > import > maven > existing maven project. If your IDE does not, there should be a way to install a Maven plugin which will give you this functionality.
+
+It bears repeating that even though you are free to complete the project in Eclipse or IntelliJ, **we will build and test your code in the docker container with maven**.
 
 ## Step 2: Getting Familiar with the Release Code
 Navigate to the `Fa18HW3/src/main/java/edu/berkeley/cs186/database` directory. You
