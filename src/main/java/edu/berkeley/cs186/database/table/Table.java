@@ -468,6 +468,11 @@ public class Table implements Iterable<Record>, Closeable {
    */
   public class RIDPageIterator implements BacktrackingIterator<RecordId> {
 	    //member variables go here
+      private byte[] bitmap;
+      private int pageNum;
+      private int current;
+      private int mark;
+
 
 	    /**
 	    * The following method signature is provided for guidance, but not necessary. Feel free to
@@ -475,11 +480,17 @@ public class Table implements Iterable<Record>, Closeable {
 	    */
 
 	    public RIDPageIterator(Page page) {
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
+	      this.pageNum = page.getPageNum();
+	      this.bitmap = getBitMap(page);
 	    }
 
 	    public boolean hasNext() {
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
+	      for (int i = current; i < bitmap.length * 8; i++) {
+	          if (Bits.getBit(bitmap, i) == Bits.Bit.ONE) {
+	              return true;
+              }
+          }
+          return false;
 	    }
 
 	    public RecordId next() {
