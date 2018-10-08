@@ -470,8 +470,8 @@ public class Table implements Iterable<Record>, Closeable {
 	    //member variables go here
       private byte[] bitmap;
       private int pageNum;
-      private int current;
-      private int mark;
+      private short current;
+      private short mark;
 
 
 	    /**
@@ -494,15 +494,18 @@ public class Table implements Iterable<Record>, Closeable {
 	    }
 
 	    public RecordId next() {
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
+	      while (Bits.getBit(bitmap, current) == Bits.Bit.ZERO) {
+	          current ++;
+          }
+          return new RecordId(pageNum, current ++);
 	    }
 
 	    public void mark() {
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
+	        mark = (short) Math.max(0, current - 1);
 	    }
 
 	    public void reset() {
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
+	        current = mark;
 	    }
 	  }
 
