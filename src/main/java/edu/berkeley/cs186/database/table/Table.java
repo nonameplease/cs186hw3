@@ -566,7 +566,6 @@ public class Table implements Iterable<Record>, Closeable {
 
 	    public RIDBlockIterator(BacktrackingIterator<Page> block) {
 	      this.block = block;
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
 	      //if you want to add anything to this constructor, feel free to
 	    }
 
@@ -604,11 +603,18 @@ public class Table implements Iterable<Record>, Closeable {
 	    }
 
 	    public boolean hasNext() {
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
+	      if (blockIter != null && blockIter.hasNext()) {
+	          return true;
+          } else if (block.hasNext()) {
+	          blockIter = new RIDPageIterator(block.next());
+	          return hasNext();
+          } else {
+	          return false;
+          }
 	    }
 
 	    public RecordId next() {
-	      throw new UnsupportedOperationException("TODO(hw3): implement");
+	      return blockIter.next();
 	    }
 
 	    /**
