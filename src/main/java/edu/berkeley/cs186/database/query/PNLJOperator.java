@@ -50,16 +50,29 @@ public class PNLJOperator extends JoinOperator {
      * You're free to use these member variables, but you're not obligated to.
      */
 
-    //private Iterator<Page> leftIterator = null;
-    //private Iterator<Page> rightIterator = null;
-    //private BacktrackingIterator<Record> leftRecordIterator = null;
-    //private BacktrackingIterator<Record> rightRecordIterator = null;
-    //private Record leftRecord = null;
-    //private Record nextRecord = null;
+    private Iterator<Page> leftIterator = null;
+    private Iterator<Page> rightIterator = null;
+    private BacktrackingIterator<Record> leftRecordIterator = null;
+    private BacktrackingIterator<Record> rightRecordIterator = null;
+    private Record leftRecord = null;
+    private Record nextRecord = null;
 
     public PNLJIterator() throws QueryPlanException, DatabaseException {
       super();
-      throw new UnsupportedOperationException("TODO(hw3): implement");
+      //throw new UnsupportedOperationException("TODO(hw3): implement");
+      this.leftIterator = PNLJOperator.this.getPageIterator(this.getLeftTableName());
+      this.rightIterator = PNLJOperator.this.getPageIterator(this.getRightTableName());
+
+      this.nextRecord = null;
+
+      this.leftIterator.next();
+      this.rightIterator.next();
+
+      this.leftRecordIterator = PNLJOperator.this.getRecordIterator(this.getLeftTableName());
+      this.rightRecordIterator = PNLJOperator.this.getRecordIterator(this.getRightTableName());
+
+      this.leftRecord = leftIterator.hasNext() ? leftRecordIterator.next() : null;
+      //this.rightRecord = rightIterator.hasNext() ? rightIterator.next() : null;
     }
 
     /**
