@@ -472,7 +472,6 @@ public class Table implements Iterable<Record>, Closeable {
       private int pageNum;
       private short current;
       private short mark;
-      boolean mark_called = false;
 
 
 	    /**
@@ -483,6 +482,7 @@ public class Table implements Iterable<Record>, Closeable {
 	    public RIDPageIterator(Page page) {
 	      this.pageNum = page.getPageNum();
 	      this.bitmap = getBitMap(page);
+	      this.current = 0;
 	    }
 
 	    public boolean hasNext() {
@@ -502,8 +502,8 @@ public class Table implements Iterable<Record>, Closeable {
 	    }
 
 	    public void mark() {
-	        //mark = (short) Math.max(0, current - 1);
-            mark = (short) (current - 1);
+	        mark = (short) Math.max(0, current - 1);
+            //mark = (short) (current - 1);
 	        //mark_called = true;
 	    }
 
@@ -571,6 +571,7 @@ public class Table implements Iterable<Record>, Closeable {
 
 	    public RIDBlockIterator(BacktrackingIterator<Page> block) {
 	      this.block = block;
+	      this.blockIter = new RIDPageIterator(this.block.next());
 	      //if you want to add anything to this constructor, feel free to
 	    }
 
@@ -612,14 +613,16 @@ public class Table implements Iterable<Record>, Closeable {
 	          return true;
           } else if (this.block.hasNext()) {
 	          this.blockIter = new RIDPageIterator(this.block.next());
-	          return this.blockIter.hasNext();
+	          return hasNext();
           } else {
 	          return false;
           }
 	    }
 
 	    public RecordId next() {
-	      return blockIter.next();
+	        prevRecordId = nextRecordId;
+	        nextRecordId = blockIter.next();
+	      return nextRecordId;
 	    }
 
 	    /**
@@ -629,18 +632,14 @@ public class Table implements Iterable<Record>, Closeable {
 	     * iterator of RecordIds.
 	     */
 	    public void mark() {
-	      /*if (this.prevRecordId == null) {
+	      if (this.prevRecordId == null) {
 	        return;
 	      }
 
 	      this.block.mark();
 	      this.blockIter.mark();
 	      this.markedBlockIter = this.blockIter;
-	      this.markedPrevRecordId = this.prevRecordId;*/
-
-	      this.block.mark();
-	      this.blockIter.mark();
-	      this.markedBlockIter = this.blockIter;
+	      this.markedPrevRecordId = this.prevRecordId;
 	    }
 
 	    /**
@@ -651,7 +650,7 @@ public class Table implements Iterable<Record>, Closeable {
 	     * care is taken to ensure that we properly reset the block page iterator.
 	     */
 	    public void reset() {
-	      /*if (this.markedPrevRecordId == null) {
+	      if (this.markedPrevRecordId == null) {
 	        return;
 	      }
 	      this.block.reset();
@@ -668,12 +667,7 @@ public class Table implements Iterable<Record>, Closeable {
 	      }
 
 	      this.prevRecordId = null;
-	      this.nextRecordId = this.markedPrevRecordId;*/
-
-	      this.blockIter = this.markedBlockIter;
-	      this.block.reset();
-	      this.block.next();
-	      this.blockIter.reset();
+	      this.nextRecordId = this.markedPrevRecordId;
 	    }
 	  }
 
