@@ -65,17 +65,16 @@ public class PNLJOperator extends JoinOperator {
       this.leftIterator = PNLJOperator.this.getPageIterator(this.getLeftTableName());
       this.rightIterator = PNLJOperator.this.getPageIterator(this.getRightTableName());
 
-      this.nextRecord = null;
-
       this.leftIterator.next();
       this.rightIterator.next();
 
-      this.leftRecordIterator = PNLJOperator.this.getRecordIterator(this.getLeftTableName());
-      this.rightRecordIterator = PNLJOperator.this.getRecordIterator(this.getRightTableName());
+      this.leftRecordIterator = PNLJOperator.this.getBlockIterator(getLeftTableName(), new Page[]{this.leftIterator.next()});
+      this.rightRecordIterator = PNLJOperator.this.getBlockIterator(getRightTableName(), new Page[]{this.rightIterator.next()});
 
-      this.leftRecord = leftIterator.hasNext() ? leftRecordIterator.next() : null;
+      this.leftRecord = leftRecordIterator.hasNext() ? leftRecordIterator.next() : null;
+      this.nextRecord = null;
 
-      //mark the first record so we can reset to it when we advance the left record.
+      //mark the first record iterator so we can reset to it when we advance the left record.
       if (rightRecordIterator != null) {
         rightRecordIterator.mark();
       } else {
@@ -83,7 +82,12 @@ public class PNLJOperator extends JoinOperator {
       }
 
 
-      //??? maybe more stuff?
+      //??? is this the right thing to do??????????
+      try {
+        fetchNextRecord();
+      } catch (DatabaseException e) {
+        this.nextRecord = null;
+      }
     }
 
 
@@ -141,14 +145,7 @@ public class PNLJOperator extends JoinOperator {
      */
     public boolean hasNext() {
         //throw new UnsupportedOperationException("TODO(hw3): implement");
-      if (this.nextRecord != null) {
-        return true;
-      }
-
-      if (this.leftRecord != null) {
-
-      }
-      return false;
+      return this.nextRecord != null;
     }
 
     /**
@@ -164,6 +161,11 @@ public class PNLJOperator extends JoinOperator {
       }
 
       Record nextRecord = this.nextRecord;
+      try {
+        this.fetchNextRecord();
+      } catch (DatabaseException e) {
+        this.nextRecord = null;
+      }
       return nextRecord;
     }
 
