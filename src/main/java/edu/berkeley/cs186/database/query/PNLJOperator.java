@@ -72,15 +72,18 @@ public class PNLJOperator extends JoinOperator {
       this.rightRecordIterator = PNLJOperator.this.getBlockIterator(getRightTableName(), new Page[]{this.rightIterator.next()});
 
       this.leftRecord = leftRecordIterator.hasNext() ? leftRecordIterator.next() : null;
-      //this.nextRecord = rightRecordIterator.hasNext() ? rightRecordIterator.next() : null;
       this.nextRecord = null;
 
 
+      if (leftRecord != null) {
+          leftRecordIterator.mark();
+      } else {
+          return;
+      }
 
 
       //??? is this the right thing to do??????????
       try {
-        //System.out.println("fetch next record in initialization."); //debug
         fetchNextRecord();
       } catch (DatabaseException e) {
         this.nextRecord = null;
@@ -89,10 +92,10 @@ public class PNLJOperator extends JoinOperator {
       //mark the first record iterator so we can reset to it when we advance the left record.
       if (this.rightRecordIterator.hasNext()) {
         this.rightRecordIterator.mark();
-        //System.out.println("mark rightRecordIterator in initialization"); //debug
       } else {
         return;
       }
+
     }
 
 
@@ -105,32 +108,61 @@ public class PNLJOperator extends JoinOperator {
 
 
     private void nextLeftRecord() throws DatabaseException {
-      if (!this.leftIterator.hasNext() && !this.leftRecordIterator.hasNext()) {
-        System.out.println("all done!"); //debug
+      if (!this.leftIterator.hasNext() && !this.leftRecordIterator.hasNext()
+      && !this.rightIterator.hasNext() && !this.rightRecordIterator.hasNext()) {
         throw new DatabaseException("All Done!");
       }
 
       if(this.leftRecordIterator.hasNext()) {
-        this.leftRecord = this.leftRecordIterator.next();
-        //System.out.println("next left record: " + this.leftRecord.getValues()); //debug
+          this.leftRecord = this.leftRecordIterator.next();
       } else {
-        this.leftRecordIterator = PNLJOperator.this.getBlockIterator(getLeftTableName(), new Page[]{this.leftIterator.next()});
-        System.out.println("next left page"); //debug
-        this.leftRecord = this.leftRecordIterator.next();
+          if (this.rightIterator.hasNext()) {
+              this.rightRecordIterator = PNLJOperator.this.getBlockIterator(getRightTableName(), new Page[]{this.rightIterator.next()});
+              this.leftRecordIterator.reset();
+              if (this.leftRecordIterator.hasNext()) {
+                  this.leftRecord = this.leftRecordIterator.next();
+              } else {
+                  this.leftRecordIterator = null;
+              }
+
+              //mark the first record iterator so we can reset to it when we advance the left record.
+              if (this.rightRecordIterator.hasNext()) {
+                  this.rightRecordIterator.next();
+                  this.rightRecordIterator.mark();
+                  this.rightRecordIterator.reset();
+              } else {
+                  return;
+              }
+          } else {
+              this.leftRecordIterator = PNLJOperator.this.getBlockIterator(getLeftTableName(), new Page[]{this.leftIterator.next()});
+              this.leftRecord = leftRecordIterator.hasNext() ? leftRecordIterator.next() : null;
+              if (leftRecord != null) {
+                  leftRecordIterator.mark();
+              } else {
+                  return;
+              }
+              this.rightIterator = PNLJOperator.this.getPageIterator(this.getRightTableName());
+              this.rightIterator.next();
+              this.rightRecordIterator = PNLJOperator.this.getBlockIterator(getRightTableName(), new Page[]{this.rightIterator.next()});
+              if (this.rightRecordIterator.hasNext()) {
+                  this.rightRecordIterator.next();
+                  this.rightRecordIterator.mark();
+                  this.rightRecordIterator.reset();
+              } else {
+                  return;
+              }
+          }
       }
     }
 
 
     private void fetchNextRecord() throws DatabaseException {
-      //System.out.println("fetchNextRecord()"); //debug
       if (this.leftRecord == null) {
         throw new DatabaseException("No new page to fetch");
       }
-      this.nextRecord = null;
+        this.nextRecord = null;
       do {
-        //System.out.println("do"); //debug
         if (this.rightRecordIterator.hasNext()) {
-          //System.out.println("this.rightRecrodIterator.hasNext()"); //debug
           Record rightRecord = rightRecordIterator.next();
           DataBox leftJoinValue = this.leftRecord.getValues().get(PNLJOperator.this.getLeftColumnIndex());
           DataBox rightJoinValue = rightRecord.getValues().get(PNLJOperator.this.getRightColumnIndex());
@@ -141,18 +173,8 @@ public class PNLJOperator extends JoinOperator {
             this.nextRecord = new Record(leftValues);
           }
         } else {
-          //System.out.println("call nextLeftRecord()"); //debug
-          nextLeftRecord();
-          //System.out.println("call resetRightRecord()"); //debug
-          resetRightRecord();
-          /*if (rightIterator.hasNext()) {
-            this.rightRecordIterator = PNLJOperator.this.getBlockIterator(getRightTableName(), new Page[]{this.rightIterator.next()});
-          } else {
-            System.out.println("call nextLeftRecord()"); //debug
             nextLeftRecord();
-            System.out.println("call resetRightRecord()"); //debug
             resetRightRecord();
-          }*/
         }
       } while (!hasNext());
     }
@@ -173,10 +195,7 @@ public class PNLJOperator extends JoinOperator {
      * @return the next Record
      * @throws NoSuchElementException if there are no more Records to yield
      */
-    //private int counter = 0; //debug
     public Record next() {
-      //counter++; //debug
-      //System.out.println(counter); //debug
         //throw new UnsupportedOperationException("TODO(hw3): implement");
       if (!this.hasNext()) {
         throw new NoSuchElementException();
@@ -188,7 +207,6 @@ public class PNLJOperator extends JoinOperator {
       } catch (DatabaseException e) {
         this.nextRecord = null;
       }
-      //System.out.println("Next Record: " + nextRecord); //debug
       return nextRecord;
     }
 

@@ -241,7 +241,6 @@ public class TestJoinOperator {
       }
       count++;
     }
-
     assertTrue(count == 165888);
   }
 
